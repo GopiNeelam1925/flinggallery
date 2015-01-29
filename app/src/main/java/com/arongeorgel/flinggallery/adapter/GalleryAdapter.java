@@ -1,5 +1,6 @@
 package com.arongeorgel.flinggallery.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,25 +9,26 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.arongeorgel.flinggallery.FlingGalleryApplication;
 import com.arongeorgel.flinggallery.R;
-import com.arongeorgel.flinggallery.model.FlingImage;
 import com.arongeorgel.flinggallery.network.NetworkConstants;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.arongeorgel.flinggallery.persistance.ImageBean;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 /**
- *
+ * Adapter used for image gallery list.
+ * Implemented using new cards view
+ * <p/>
  * Created by arongeorgel on 26/01/2015.
  */
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoHolder> {
-    private List<FlingImage> mObjects;
-    private ImageLoader mImageLoader;
+    private List<ImageBean> mObjects;
+    private Context mContext;
 
-    public GalleryAdapter(List<FlingImage> objects) {
+    public GalleryAdapter(Context context, List<ImageBean> objects) {
         mObjects = objects;
-        mImageLoader = ImageLoader.getInstance();
+        mContext = context;
     }
 
     @Override
@@ -40,16 +42,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoHol
 
     @Override
     public void onBindViewHolder(PhotoHolder holder, int position) {
-        try {
-            FlingImage image = mObjects.get(position);
-            holder.mPhotoTitle.setText(image.getTitle());
+        ImageBean image = mObjects.get(position);
+        holder.mPhotoTitle.setText(image.getTitle());
 
-            String imgUrl = NetworkConstants.BASE_URL + "/photos/" + image.getImageId();
-            mImageLoader.displayImage(imgUrl, holder.mPhotoView,
-                    FlingGalleryApplication.getInstance().getDefaultImageOptions());
-        } catch (NullPointerException e) {
-            Log.wtf("TAG", e.toString());
-        }
+        String imgUrl = NetworkConstants.BASE_URL + "/photos/" + image.getImageId();
+        Log.i(NetworkConstants.TAG, "Loading image " + imgUrl);
+
+        Picasso.with(mContext).load(imgUrl).fit().into(holder.mPhotoView);
     }
 
     @Override
