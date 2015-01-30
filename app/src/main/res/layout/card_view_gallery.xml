@@ -13,9 +13,27 @@
     card_view:elevation="5dp"
     card_view:cardCornerRadius="1dp">
 
+
     <RelativeLayout
+        android:id="@+id/back_photo_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:background="@color/dark_purple">
+
+        <TextView
+            android:id="@+id/photo_title_and_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/white"
+            android:textSize="16sp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/front_photo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
 
         <ImageView
             android:id="@+id/photo"
@@ -29,8 +47,8 @@
             android:background="@color/alpha_dark_purple"
             android:textColor="@color/white"
             android:padding="10dp"
-            android:layout_alignParentBottom="true"
-            />
+            android:layout_alignParentTop="true" />
+
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

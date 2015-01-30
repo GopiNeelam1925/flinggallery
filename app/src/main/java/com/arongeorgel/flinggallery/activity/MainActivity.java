@@ -1,18 +1,16 @@
 package com.arongeorgel.flinggallery.activity;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 
 import com.arongeorgel.flinggallery.R;
 import com.arongeorgel.flinggallery.adapter.GalleryAdapter;
-import com.arongeorgel.flinggallery.model.FlingImage;
 import com.arongeorgel.flinggallery.network.BusProvider;
 import com.arongeorgel.flinggallery.network.event.LoadPhotosEvent;
 import com.arongeorgel.flinggallery.network.event.PhotosLoadedEvent;
@@ -24,8 +22,6 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
-
-import static android.content.Context.*;
 
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -65,22 +61,14 @@ public class MainActivity extends ActionBarActivity implements EventListener {
 
     @Subscribe
     public void onPhotosLoaded(PhotosLoadedEvent event) {
-        Log.wtf("TAG", "we have event in activity");
         this.mImageList.clear();
         this.mImageList.addAll(event.getImageList());
         mAdapter.notifyDataSetChanged();
-
-
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         mBus.unregister(this);
     }
 

@@ -7,8 +7,6 @@ import com.arongeorgel.flinggallery.network.event.ApiErrorEvent;
 import com.arongeorgel.flinggallery.network.event.LoadPhotosEvent;
 import com.arongeorgel.flinggallery.network.event.PhotosLoadedEvent;
 import com.arongeorgel.flinggallery.persistance.ImageBean;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

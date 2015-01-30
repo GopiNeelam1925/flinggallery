@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">FlingGallery</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="photo_title_author" formatted="false">%s \nBy: %s</string>
 
 </resources>
