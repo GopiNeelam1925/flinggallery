@@ -1,17 +1,23 @@
 package com.arongeorgel.flinggallery.network;
 
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Log;
 
+import com.arongeorgel.flinggallery.FlingGalleryApplication;
 import com.arongeorgel.flinggallery.model.FlingImage;
 import com.arongeorgel.flinggallery.network.event.ApiErrorEvent;
 import com.arongeorgel.flinggallery.network.event.LoadPhotosEvent;
 import com.arongeorgel.flinggallery.network.event.PhotosLoadedEvent;
-import com.arongeorgel.flinggallery.persistance.ImageBean;
+import com.arongeorgel.flinggallery.persistence.ImageBean;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -37,14 +43,25 @@ public class NetworkManager {
         mRestService.getImageList(new Callback<List<FlingImage>>() {
             @Override
             public void success(List<FlingImage> imageList, Response response) {
-                List<ImageBean> beanList = new ArrayList<ImageBean>();
                 for(FlingImage image : imageList) {
-                    ImageBean bean = new ImageBean(image.getId(), image.getImageId(), image.getTitle(),
-                            image.getUserId(), image.getUserName());
-                    bean.save();
-                    beanList.add(bean);
+                    ImageBean bean = ImageBean.getImage(image.getId());
+
+                    if(bean == null) {
+                        bean = new ImageBean(image.getId(), image.getImageId(), image.getTitle(),
+                                image.getUserId(), image.getUserName());
+                        bean.save();
+                    } else {
+                        // update existing image
+                        bean.setImageId(image.getImageId());
+                        bean.setTitle(image.getTitle());
+                        bean.setUserId(image.getUserId());
+                        bean.setUserName(image.getUserName());
+                        bean.save();
+                    }
+
                 }
-                mBus.post(new PhotosLoadedEvent(beanList));
+                new PreFetchImages(imageList).execute();
+                mBus.post(new PhotosLoadedEvent(imageList));
             }
 
             @Override
@@ -56,4 +73,47 @@ public class NetworkManager {
         });
     }
 
+    /**
+     * Prefetch images and save some data about bitmaps in database
+     */
+    private static class PreFetchImages extends AsyncTask<Void, Void, Void> {
+        private List<FlingImage> imageList;
+
+        private PreFetchImages(List<FlingImage> imageList) {
+            this.imageList = imageList;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            for(final FlingImage image : imageList) {
+                final String imgUrl = NetworkConstants.BASE_URL + NetworkConstants.PHOTO_PATH
+                        + "/" + image.getImageId();
+                Picasso.with(FlingGalleryApplication.getInstance().getApplicationContext())
+                        .load(imgUrl)
+                        .transform(new Transformation() {
+                            @Override
+                            public Bitmap transform(Bitmap bitmap) {
+                                ImageBean bean = ImageBean.getImage(image.getId());
+                                if (bean != null) {
+                                    // update size and width
+                                    bean.setImageSize(bitmap.getByteCount());
+                                    bean.setImageWidth(bitmap.getWidth());
+                                    bean.save();
+                                }
+
+                                return bitmap;
+                            }
+
+                            @Override
+                            public String key() {
+                                return imgUrl;
+                            }
+                        })
+                        .fetch();
+
+            }
+            return null;
+        }
+    }
 }

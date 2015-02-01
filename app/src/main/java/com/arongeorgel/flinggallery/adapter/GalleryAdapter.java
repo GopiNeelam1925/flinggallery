@@ -14,8 +14,9 @@ import android.widget.TextView;
 
 import com.arongeorgel.flinggallery.FlingGalleryApplication;
 import com.arongeorgel.flinggallery.R;
+import com.arongeorgel.flinggallery.model.FlingImage;
 import com.arongeorgel.flinggallery.network.NetworkConstants;
-import com.arongeorgel.flinggallery.persistance.ImageBean;
+import com.arongeorgel.flinggallery.widget.FontCache;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -27,14 +28,15 @@ import java.util.List;
  * Created by arongeorgel on 26/01/2015.
  */
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoHolder> {
-    protected List<ImageBean> mObjects;
+    public static final int BATCH_SIZE = 6;
+    protected List<FlingImage> mObjects;
     protected Context mContext;
     protected static AnimatorSet setRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(
-            FlingGalleryApplication.getInstance().getApplicationContext(), R.animator.flight_right_out);
+            FlingGalleryApplication.getInstance().getApplicationContext(), R.animator.flip_right_out);
     protected static AnimatorSet setLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(
-            FlingGalleryApplication.getInstance().getApplicationContext(), R.animator.flight_left_in);
+            FlingGalleryApplication.getInstance().getApplicationContext(), R.animator.flip_left_in);
 
-    public GalleryAdapter(Context context, List<ImageBean> objects) {
+    public GalleryAdapter(Context context, List<FlingImage> objects) {
         mObjects = objects;
         mContext = context;
     }
@@ -50,16 +52,32 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoHol
 
     @Override
     public void onBindViewHolder(PhotoHolder holder, int position) {
-        ImageBean image = mObjects.get(position);
+        FlingImage image = mObjects.get(position);
         holder.mPhotoTitle.setText(image.getTitle());
         holder.mPhotoTitleAndAuthor.setText(String.format(
                 mContext.getString(R.string.photo_title_author),
                 image.getTitle(), image.getUserName()));
 
-        String imgUrl = NetworkConstants.BASE_URL + "/photos/" + image.getImageId();
+        String imgUrl = NetworkConstants.BASE_URL + NetworkConstants.PHOTO_PATH + "/" + image.getImageId();
         Log.i(NetworkConstants.TAG, "Loading image " + imgUrl);
+        /**
+         * NOTE: With Picasso we can use various options for downloading
+         * photos and displaying the photo.
+         *
+         * What these mean:
+         * fit - wait until the ImageView has been measured and resize the image to exactly match its size.
+         * centerCrop - scale the image honoring the aspect ratio until it fills the size.
+         *      Crop either the top and bottom or left and right so it matches the size exactly.
+         * center inside - show full image (no crop)
+         *
+         * My personal choice would be to crop the image and on click show it larger at full size
+         * But for this project i have left it with #centerInside() since onClick we have card flip animation
+         */
 
-        Picasso.with(mContext).load(imgUrl).fit().centerCrop().into(holder.mPhotoView);
+        Picasso.with(mContext).load(imgUrl)
+                .stableKey(imgUrl).tag(holder.mPhotoView)
+                .fit().centerInside()
+                .into(holder.mPhotoView);
     }
 
     @Override
@@ -82,6 +100,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoHol
             mPhotoTitle = (TextView) view.findViewById(R.id.photo_title);
             mPhotoView = (ImageView) view.findViewById(R.id.photo);
             mPhotoTitleAndAuthor = (TextView) view.findViewById(R.id.photo_title_and_user);
+            mPhotoTitleAndAuthor.setTypeface(FontCache.get("journal.ttf",
+                    FlingGalleryApplication.getInstance().getBaseContext()));
 
             mFrontPhotoLayout.setOnClickListener(this);
             mBackVisible = false;

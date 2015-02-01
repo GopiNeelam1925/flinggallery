@@ -1,14 +1,19 @@
 package com.arongeorgel.flinggallery;
 
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.activeandroid.ActiveAndroid;
 import com.arongeorgel.flinggallery.network.BusProvider;
 import com.arongeorgel.flinggallery.network.FlingRestService;
 import com.arongeorgel.flinggallery.network.NetworkConstants;
 import com.arongeorgel.flinggallery.network.NetworkManager;
-import com.arongeorgel.flinggallery.persistance.ImageBean;
+import com.arongeorgel.flinggallery.network.event.NetworkStateChanged;
+import com.arongeorgel.flinggallery.persistence.ImageBean;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import retrofit.RestAdapter;
 
@@ -21,6 +26,7 @@ public class FlingGalleryApplication extends Application {
     private static FlingGalleryApplication sInstance;
     private NetworkManager mManager;
     private Bus mBus = BusProvider.getInstance();
+    private boolean mConnectedToInternet;
 
     @Override
     public void onCreate() {
@@ -29,6 +35,7 @@ public class FlingGalleryApplication extends Application {
 
         mManager = new NetworkManager(buildApi(), mBus);
         mBus.register(mManager);
+        mConnectedToInternet = isNetworkAvailable();
         initDb();
 
     }
@@ -53,5 +60,20 @@ public class FlingGalleryApplication extends Application {
      */
     public static FlingGalleryApplication getInstance() {
         return sInstance;
+    }
+
+    @Subscribe
+    public void onNetworkChanged(NetworkStateChanged event) {
+
+    }
+
+    public boolean isConnectedToInternet() {
+        return mConnectedToInternet;
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 }

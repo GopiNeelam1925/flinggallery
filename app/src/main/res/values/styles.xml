@@ -2,10 +2,17 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <!-- Customize your theme here. -->
+        <!-- Note: this will be default background for all windows
+                Since we have only one window for this project this will be enough -->
+        <item name="android:windowBackground">@drawable/splash_screen_bg</item>
         <item name="colorPrimary">@color/purple</item>
         <item name="colorPrimaryDark">@color/dark_purple</item>
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:itemTextAppearance">@style/menuItem</item>
+    </style>
+
+    <style name="menuItem" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textColor">@color/purple</item>
     </style>
 
 </resources>

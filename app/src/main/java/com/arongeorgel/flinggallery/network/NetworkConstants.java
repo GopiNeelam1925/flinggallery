@@ -12,6 +12,7 @@ public class NetworkConstants {
     public static final String API_ENDPOINT = "challenge.superfling.com";
     public static final String BASE_URL = BuildConfig.DEBUG ?
             HTTP_SCHEMA + API_ENDPOINT : HTTP_SCHEMA + API_ENDPOINT;
+    public static final String PHOTO_PATH = "/photos";
 
     public static final String TAG = "FlingGallery";
 
