@@ -10,7 +10,8 @@
     <string name="no_connection">No connection</string>
     <string name="retry">Retry</string>
     <string name="api_error">Could not fetch photos</string>
-    <string name="about_message">Project for showing how to use the most popular 3rd party libraries. \n\n
+    <string name="about_message">Project for showing how to use the most popular 3rd party libraries
+        and use of new RecyclerView and CardView in Android L. \n\n
         Version %s</string>
     <string name="ok">OK</string>
     <string name="n_a">n/a</string>
